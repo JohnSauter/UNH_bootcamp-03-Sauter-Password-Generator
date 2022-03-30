@@ -1,10 +1,10 @@
 // Assignment Code
-var generateBtn = document.querySelector("#generate");
+const generateBtn = document.querySelector("#generate");
 
 // Write password to the #password input
 function writePassword() {
-  var password = generatePassword();
-  var passwordText = document.querySelector("#password");
+  const password = generatePassword();
+  const passwordText = document.querySelector("#password");
 
   passwordText.value = password;
 
@@ -39,7 +39,7 @@ function generatePassword() {
     }
     password_length_valid = 1;
   }
-  let OK_text = "OK to include, cancel to not include.";
+  const OK_text = "OK to include, cancel to not include.";
   let selection_valid = 0;
   let include_lower_case = false;
   let include_upper_case = false;
@@ -59,7 +59,8 @@ function generatePassword() {
   }
 
   /* We have a valid length and at least one category of characters
-   * has been selected.  */
+   * has been selected.  Form a string consisting of the allowed
+   * characters.  */
   let allowed_characters = "";
   if (include_lower_case) {
     allowed_characters = allowed_characters + "abcdefghijklmnopqrstuvwxyz";
@@ -75,21 +76,21 @@ function generatePassword() {
     allowed_characters = allowed_characters + '"';
   }
    
-  /* Avoid providing the same password for the same inputs by
-   * taking the time in milliseconds and converting it to a value
-   * between 0 and 1.  */
+  /* If the random mumber generator just produces pseudo random
+   * numbers it will generate the same password every time it is
+   * run, given the same constraints.  To prevent that, mix the time
+   * with the random numbers.  */
   let random_seed = Date.now();
-  random_seed = (random_seed % 1000000) / 1000000;
 
   /* Accumulate characters chosen at random from the allowed characters
    * until we have enough.  */
   let password = "";
   while (password.length < password_length) {
     let random_number = Math.random();
-    random_number = (random_number + random_seed) / 2.0;
     random_number = random_number * allowed_characters.length;
-    random_number = Math.floor(random_number);
-    let random_character = allowed_characters.charAt(random_number);
+    random_number = (random_number + random_seed);
+    random_number = random_number % allowed_characters.length;
+    const random_character = allowed_characters.charAt(random_number);
     password = password + random_character;
   }
   return (password);
