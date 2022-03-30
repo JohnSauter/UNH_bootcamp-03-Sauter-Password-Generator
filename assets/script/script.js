@@ -26,11 +26,15 @@ function generatePassword() {
   while (password_length_valid == 0) {
     password_length = prompt("How many characters in your password?")
     if (!password_length) {
-      alert("Do not just cancel the requestor, provide some text.");
+      alert("Do not cancel the requestor or leave it empty: provide some text and press OK.");
       continue;
     }
     if (!is_numeric(password_length)) {
-      alert("The response must be a number.");
+      alert("The password length must be a number.");
+      continue;
+    }
+    if (Math.floor(password_length) != password_length) {
+      alert("The password length must be an integer.")
       continue;
     }
     if ((password_length < 8) || (password_length > 128)) {
@@ -39,14 +43,14 @@ function generatePassword() {
     }
     password_length_valid = 1;
   }
-  const OK_text = "OK to include, cancel to not include.";
+  const OK_text = "OK to include, Cancel to not include.";
   let selection_valid = 0;
   let include_lower_case = false;
   let include_upper_case = false;
   let include_numeric = false;
   let include_special = false;
   while (selection_valid == 0) {
-    include_lower_case = confirm("Inlcude lower case? " + OK_text);
+    include_lower_case = confirm("Inlcude lower case letters? " + OK_text);
     include_upper_case = confirm("Include upper case letters? " + OK_text);
     include_numeric = confirm("Include numeric digits? " + OK_text);
     include_special = confirm("Include special characters? " + OK_text);
