@@ -9,4 +9,4 @@ The URL of the application is https://github.com/JohnSauter/UNH_bootcamp-03-Saut
 It is deployed at https://johnsauter.github.io/UNH_bootcamp-03-Sauter-Password-Generator/ .
 
 Here is an image of the application after generating a password:
-![Password Generator](./assets/images/Password_generator.png)
+![Password Generator](./assets/images/Password_Generator.png)
