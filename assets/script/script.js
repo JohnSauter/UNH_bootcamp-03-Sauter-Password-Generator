@@ -13,16 +13,26 @@ function writePassword() {
 // Add event listener to generate button
 generateBtn.addEventListener("click", writePassword);
 
-/* Function to test a string for being formatted like a number.  */
+/* Function to test a string for being formatted like a number. 
+ * It must contain at least one decimal digits, it can have more
+ * than one, and a decimal point is allowed.  */
 function is_numeric (text) {
   if (typeof text != "string") {
     return false;
   }
+  /* isNAN is false for well-formed numbers, but also for the empty
+   * string and for a string containing only blanks.  Therefore we
+   * also test that the input can be parsed as a number using
+   * parseFloat which, unlike Number, will fail if given only
+   * spaces.  */
   return (!isNaN(text) && !isNaN(parseFloat(text)));
 }
 
+/* Function to generate and display a password.  */
 function generatePassword() {
   let password_length_valid = 0;
+
+  /* Ask for a password length.  Keep asking until we get a valid answer.  */
   while (password_length_valid == 0) {
     password_length = prompt("How many characters in your password?")
     if (!password_length) {
@@ -43,6 +53,9 @@ function generatePassword() {
     }
     password_length_valid = 1;
   }
+
+  /* We have a valid password length.  Now get the other criteria.  
+  * The user must specify at least one category of characters to include.  */
   const OK_text = "OK to include, Cancel to not include.";
   let selection_valid = 0;
   let include_lower_case = false;
@@ -80,21 +93,26 @@ function generatePassword() {
     allowed_characters = allowed_characters + '"';
   }
    
-  /* If the random mumber generator just produces pseudo random
-   * numbers it will generate the same password every time it is
-   * run, given the same constraints.  To prevent that, mix the time
-   * with the random numbers.  */
-  let random_seed = Date.now();
-
-  /* Accumulate characters chosen at random from the allowed characters
-   * until we have enough.  */
+    /* Accumulate characters chosen at random from the allowed characters
+     * until we have enough.  */
   let password = "";
   while (password.length < password_length) {
-    let random_number = Math.random();
-    random_number = random_number * allowed_characters.length;
-    random_number = (random_number + random_seed);
-    random_number = random_number % allowed_characters.length;
+    /* Get 16 random bits.  These bits are random enough to be used for
+    * security purposes such as password generation.  */
+    const random_array = new Uint16Array(1);
+    window.crypto.getRandomValues(random_array);
+    /* The random number will be an integer between 0 and 65535, 
+     * inclusive.  */
+    let random_number = random_array[0];
+    /* Scale the random number.  The result will be greater than 
+     * or equal to zero and less than the number of allowed characters.  */
+    random_number = Math.floor((random_number * allowed_characters.length) 
+                               / 65536);
+    /* Use that value to select a character from the string of 
+     * allowed characters.  */
     const random_character = allowed_characters.charAt(random_number);
+    /* Append the character to the password string until the password
+     * string is long enough.  */
     password = password + random_character;
   }
   return (password);
