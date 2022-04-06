@@ -28,6 +28,24 @@ function is_numeric (text) {
   return (!isNaN(text) && !isNaN(parseFloat(text)));
 }
 
+/* Function to choose a character at random from a string.  */
+function choose_character (choices) {
+    /* Get 16 random bits.  These bits are random enough to be used for
+    * security purposes such as password generation.  */
+    const random_array = new Uint16Array(1);
+    window.crypto.getRandomValues(random_array);
+    /* The random number will be an integer between 0 and 65535, 
+     * inclusive.  */
+    let random_number = random_array[0];
+    /* Scale the random number.  The result will be greater than 
+     * or equal to zero and less than the number of allowed characters.  */
+    random_number = Math.floor((random_number * choices.length) / 65536);
+    /* Use that value to select a character from the string of 
+     * characters from we must choose, and return it.  */
+    const random_character = choices.charAt(random_number);
+    return (random_character);
+}
+
 /* Function to generate and display a password.  */
 function generatePassword() {
   let password_length_valid = 0;
@@ -77,43 +95,58 @@ function generatePassword() {
 
   /* We have a valid length and at least one category of characters
    * has been selected.  Form a string consisting of the allowed
-   * characters.  */
+   * characters, and choose a character from each.  */
   let allowed_characters = "";
+  let password = "";
   if (include_lower_case) {
-    allowed_characters = allowed_characters + "abcdefghijklmnopqrstuvwxyz";
+    const lower_case_letters = "abcdefghijklmnopqrstuvwxyz";
+    allowed_characters = allowed_characters + lower_case_letters;
+    password = password + choose_character (lower_case_letters);
   }
   if (include_upper_case) {
-    allowed_characters = allowed_characters + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const upper_case_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    allowed_characters = allowed_characters + upper_case_letters;
+    password = password + choose_character (upper_case_letters);
   }
   if (include_numeric) {
-    allowed_characters = allowed_characters + "0123456789";
+    const numerics = "0123456789";
+    allowed_characters = allowed_characters + numerics;
+    password = password + choose_character(numerics);
   }
   if (include_special) {
-    allowed_characters = allowed_characters + "~`!@#$%^&*()_-+={[}]:;'<,>.?/";
-    allowed_characters = allowed_characters + '"';
+    let special_characters = "~`!@#$%^&*()_-+={[}]:;'<,>.?/";
+    special_characters = special_characters + '"';
+    allowed_characters = allowed_characters + special_characters;
+    password = password + choose_character(special_characters);
   }
-   
+ 
     /* Accumulate characters chosen at random from the allowed characters
      * until we have enough.  */
-  let password = "";
   while (password.length < password_length) {
-    /* Get 16 random bits.  These bits are random enough to be used for
-    * security purposes such as password generation.  */
+    const random_character = choose_character (allowed_characters);
+    password = password + random_character;
+  }
+
+  /* Since the first few characters were not very randomly chosen,
+   * shuffle the string to conceal the weak choices.  */
+  const password_array = password.split("");
+  for (let i = 0; i < password.length; i++) {
+
+    /* Exchange the character at position i with the character at
+     * a random position.  */
     const random_array = new Uint16Array(1);
     window.crypto.getRandomValues(random_array);
     /* The random number will be an integer between 0 and 65535, 
      * inclusive.  */
     let random_number = random_array[0];
     /* Scale the random number.  The result will be greater than 
-     * or equal to zero and less than the number of allowed characters.  */
-    random_number = Math.floor((random_number * allowed_characters.length) 
-                               / 65536);
-    /* Use that value to select a character from the string of 
-     * allowed characters.  */
-    const random_character = allowed_characters.charAt(random_number);
-    /* Append the character to the password string until the password
-     * string is long enough.  */
-    password = password + random_character;
+     * or equal to zero and less than the number of characters in
+     * the password.  */
+    random_number = Math.floor((random_number * password.length) / 65536);
+    const temp_char = password_array[i];
+    password_array[i] = password_array[random_number];
+    password_array[random_number] = temp_char;
   }
+  password = password_array.join("");
   return (password);
 }
